@@ -4,10 +4,11 @@ from requests_oauthlib import OAuth2Session
 import logging
 import os
 import sys
-#import urlparse
+from urllib import parse
 import webbrowser
-import http.server
-#from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+#import http.server
+
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import requests
 import json
 
@@ -47,7 +48,7 @@ def selfview(request):
             self.server.path = self.path
 
     
-    parsed_redirect_uri = urlparse.urlparse(redirect_uri)
+    parsed_redirect_uri = parse.urlparse(redirect_uri)
     server_address = parsed_redirect_uri.hostname, parsed_redirect_uri.port
     
     print('server_address:', server_address)
@@ -62,8 +63,8 @@ def selfview(request):
     
     # At this point a request has been handled. Let's parse its URL.
     httpd.server_close()
-    callback_url = urlparse.urlparse(httpd.path)
-    authorize_code = urlparse.parse_qs(callback_url.query)['code'][0]
+    callback_url = parse.urlparse(httpd.path)
+    authorize_code = parse.parse_qs(callback_url.query)['code'][0]
     
     print('Got an authorize code:', authorize_code)
     
@@ -122,14 +123,16 @@ def selfview(request):
     #response = requests.get(url=activity_type_url, verify=False,
     #                        headers={'api-key': CLIENT_ID, 'authorization': 'Bearer %s' % access_token['access_token']})
     workouts_url = 'https://oauth2-api.mapmyapi.com/v7.0/workout/?user=27173534'
+    user_url = 'https://oauth2-api.mapmyapi.com/v7.1/user/self/'
     #response = requests.get(url=workouts_url, verify=False,
     #                        headers={'api-key': CLIENT_ID, 'authorization': 'Bearer %s' % access_token['access_token']})
     #workouts_url = 'https://oauth2-api.mapmyapi.com/v7.1/workout/273123402/'
-    response = requests.get(url=workouts_url, verify=False,
+    response = requests.get(url=user_url, verify=False,
                             headers={'api-key': CLIENT_ID, 'authorization': 'Bearer %s' % access_token['access_token']})
     
     data = response.json()
-    print (json.dumps(data,sort_keys=True,indent=2))
+    print("Name:",data["display_name"])
+    #print (json.dumps(data,sort_keys=True,indent=2))
     #print data[1]["name"]
     #print data[2]["name"]
     return HttpResponse("self view page")
